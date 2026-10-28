@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="theme-color" content="#09101e" />
+  <meta name="description" content="Explore and benchmark shortest-path algorithms on a random geometric graph. Includes two original directional heuristics." />
+  <title>PATHLAB | Algorithm Visualizer & Benchmark</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="shell">
+    <header class="header">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"><svg viewBox="0 0 42 42" fill="none"><path d="M9 30L19 12L33 23L20 31L9 30Z" stroke="currentColor" stroke-width="2"/><circle cx="9" cy="30" r="4" fill="#5EEAD4"/><circle cx="19" cy="12" r="4" fill="#93C5FD"/><circle cx="33" cy="23" r="4" fill="#FBBF24"/></svg></div>
+        <div><div class="overline">INTERACTIVE ENGINEERING LAB</div><h1>PATH<span>LAB</span> <em>01</em></h1></div>
+      </div>
+      <div class="header-right"><span class="online-dot"></span><span class="header-note" data-i18n="browser">100% browser · no dependencies</span>
+        <label class="lang-wrap" for="language"><span class="sr-only">Language</span><select id="language" aria-label="Language"><option value="en">EN</option><option value="ru">RU</option><option value="de">DE</option></select></label>
+        <a class="source-chip" href="https://github.com/new" target="_blank" rel="noopener" title="Create a GitHub repository">GITHUB ↗</a>
+      </div>
+    </header>
+
+    <main class="layout">
+      <aside class="panel sidebar">
+        <div class="panel-heading"><span class="section-number">01</span><h2 data-i18n="graphConfig">GRAPH CONFIGURATION</h2></div>
+        <div class="control-group">
+          <div class="control-line"><label for="nodeRange" data-i18n="nodes">Random nodes</label><output class="chip" id="nodeValue">105</output></div>
+          <input type="range" id="nodeRange" min="40" max="180" step="5" value="105" />
+          <div class="range-label"><span>40</span><span>180</span></div>
+        </div>
+        <div class="control-group">
+          <div class="control-line"><label for="edgeRange" data-i18n="connectivity">Connections per node</label><output class="chip" id="edgeValue">5</output></div>
+          <input type="range" id="edgeRange" min="1" max="6" step="1" value="5" />
+          <div class="range-label"><span data-i18n="sparse">Sparse</span><span data-i18n="dense">Dense</span></div>
+        </div>
+        <div class="control-group"><div class="control-line"><label for="seed" data-i18n="seed">Random seed</label></div><input class="field" id="seed" type="number" min="0" max="4294967295" value="2026" /></div>
+        <div class="control-group"><div class="control-line"><label for="visualStyle" data-i18n="visualStyle">Visual style</label></div><select class="field" id="visualStyle"><option value="classic">Classic graph</option><option value="city">City blocks</option></select></div>
+        <div class="control-group"><div class="control-line"><label for="labMode" data-i18n="labMode">Comparison lab</label></div><select class="field" id="labMode"><option value="manual">Manual + benchmark</option><option value="auto">Automatic study</option><option value="both">2-in-1</option></select></div>
+        <button class="btn primary full" id="generate"><span>✧</span><span data-i18n="newGraph">GENERATE NEW GRAPH</span></button>
+        <div class="divider"></div>
+        <div class="panel-heading secondary-heading"><span class="section-number">02</span><h2 data-i18n="routeSetup">ROUTE SETUP</h2></div>
+        <p class="hint" data-i18n="chooseHelp">Click a button, then select a point on the canvas.</p>
+        <div class="endpoint-buttons"><button class="btn endpoint" id="pickStart"><span class="badge-dot start"></span><span data-i18n="selectStart">SET POINT A</span></button><button class="btn endpoint" id="pickGoal"><span class="badge-dot goal"></span><span data-i18n="selectGoal">SET POINT B</span></button></div>
+        <button class="btn ghost full" id="randomEnds" data-i18n="randomPair">↝ Random A / B pair</button>
+        <div class="divider"></div>
+        <div class="panel-heading secondary-heading"><span class="section-number">03</span><h2 data-i18n="algorithmTitle">ALGORITHM</h2></div>
+        <div class="algorithms" id="algorithms" role="radiogroup" aria-label="Algorithm"></div>
+      </aside>
+
+      <section class="center">
+        <div class="canvas-head"><div><div class="eyebrow"><span class="live-pulse"></span><span data-i18n="liveVis">LIVE VISUALIZATION</span></div><h2 data-i18n="networkTitle">Geometric network</h2></div>
+          <div class="canvas-tags"><span class="stat-tag"><strong id="nodeCount">105</strong> <span data-i18n="nodesShort">nodes</span></span><span class="stat-tag"><strong id="edgeCount">—</strong> <span data-i18n="edgesShort">edges</span></span></div>
+        </div>
+        <div class="canvas-container">
+          <canvas id="graphCanvas" aria-label="Graph visualization. Click nodes to set start and destination." tabindex="0"></canvas>
+          <div class="canvas-topline"><span><i class="circle a"></i>A <b id="startLabel">—</b></span><span class="line"></span><span><i class="circle b"></i>B <b id="goalLabel">—</b></span><span class="interaction" id="pickStatus" data-i18n="clickToSelect">CLICK A NODE TO SET A</span></div>
+          <div class="canvas-bottomline"><span class="legend"><i class="legend-line baseline"></i><span data-i18n="allEdges">Graph</span></span><span class="legend"><i class="legend-dot explored"></i><span data-i18n="visited">Visited</span></span><span class="legend"><i class="legend-dot pending"></i><span data-i18n="frontier">Discovered</span></span><span class="legend"><i class="legend-line route"></i><span data-i18n="foundRoute">Route</span></span></div>
+        </div>
+        <div class="playback">
+          <button class="btn primary" id="run">▶ <span data-i18n="run">RUN SEARCH</span></button>
+          <button class="btn" id="pause">Ⅱ <span data-i18n="pause">PAUSE</span></button>
+          <button class="btn" id="step">⇥ <span data-i18n="step">STEP</span></button>
+          <div class="playback-spacer"></div><label class="speed-control" for="speed"><span data-i18n="speed">Speed</span><input id="speed" type="range" min="10" max="700" step="10" value="190" /><output id="speedValue">190</output><span class="muted">ev/s</span></label>
+        </div>
+        <div class="timeline"><div id="timelineFill"></div></div>
+        <div class="footer-line"><span id="runState" aria-live="polite">Ready. Choose an algorithm and press Run.</span><span id="stepCounter">0 / 0</span></div>
+        <div class="insight"><span class="insight-icon">ⓘ</span><p id="algorithmDescription">—</p></div>
+      </section>
+
+      <aside class="panel metrics">
+        <div class="panel-heading"><span class="section-number">04</span><h2 data-i18n="liveStats">LIVE STATISTICS</h2></div>
+        <div class="result-status" id="resultStatus"><span class="status-led"></span><span id="statusText">READY</span></div>
+        <div class="hero-metric"><div class="metric-caption" data-i18n="pathLength">PATH LENGTH</div><div class="metric-big" id="routeLength">—</div><div class="metric-unit" data-i18n="coordinateUnits">coordinate units</div></div>
+        <div class="metric-grid"><div class="metric-tile"><span data-i18n="relativeToBest">VS. OPTIMUM</span><strong id="relativeBest">—</strong></div><div class="metric-tile"><span data-i18n="hops">HOPS</span><strong id="hopCount">—</strong></div><div class="metric-tile"><span data-i18n="visitedCount">VISITED NODES</span><strong id="visitedCount">0</strong></div><div class="metric-tile"><span data-i18n="edgesChecked">EDGE CHECKS</span><strong id="checkedCount">0</strong></div></div>
+        <div class="mini-heading"><span data-i18n="coverage">SEARCH COVERAGE</span><span id="coverageValue">0%</span></div><div class="bar-track"><div id="coverageFill"></div></div>
+        <div class="tiny-text" data-i18n="coverageNote">Visited nodes as a share of the graph.</div>
+        <div class="divider"></div><div class="mini-heading"><span data-i18n="cpuTime">MEDIAN ALGORITHM TIME</span><strong id="timeValue">—</strong></div><div class="tiny-text" data-i18n="timingNote">Measured without animation; browser-dependent, 25 runs.</div>
+        <div class="divider"></div><div class="mini-heading" data-i18n="explainTitle">WHAT IS HAPPENING?</div><p class="explain" id="liveExplanation">—</p>
+      </aside>
+
+      <section class="bench-panel">
+        <div class="bench-heading"><div><div class="eyebrow" data-i18n="benchmarkEyebrow">MEASURABLE PERFORMANCE</div><h2 data-i18n="benchmarkTitle">Algorithm benchmark</h2><p data-i18n="benchSubtitle">All methods run on the same graph. Click a row to replay its search.</p></div><button class="btn" id="benchmark">↻ <span data-i18n="rerunBench">RE-RUN BENCHMARK</span></button></div>
+        <div class="section-block manual-block" id="manualBlock">
+          <div class="subsection-head"><h3 data-i18n="manualBench">Manual comparison</h3><p data-i18n="manualBenchDesc">Single-map benchmark for the graph currently shown above.</p></div>
+          <div class="table-scroll"><table><thead><tr><th data-i18n="algColumn">ALGORITHM</th><th data-i18n="lengthColumn">LENGTH</th><th data-i18n="deltaColumn">VS. OPTIMUM</th><th data-i18n="visitedColumn">VISITED</th><th data-i18n="checksColumn">CHECKS</th><th data-i18n="runtimeColumn">MEDIAN TIME</th><th data-i18n="resultColumn">RESULT</th></tr></thead><tbody id="benchmarkRows"></tbody></table></div>
+        </div>
+        <div class="section-block auto-block" id="autoBlock">
+          <div class="subsection-head"><h3 data-i18n="autoTitle">Automatic study</h3><p data-i18n="autoSubtitle">Run the same algorithms on many random maps and aggregate the results.</p></div>
+          <div class="auto-controls">
+            <label><span data-i18n="autoMaps">Maps</span><input class="field" id="autoMaps" type="number" min="5" max="250" step="5" value="40" /></label>
+            <label><span data-i18n="autoSeedStep">Seed step</span><input class="field" id="autoSeedStep" type="number" min="1" max="99999" step="1" value="97" /></label>
+            <button class="btn primary" id="runAuto">⚗ <span data-i18n="runAuto">RUN AUTO STUDY</span></button>
+          </div>
+          <div class="auto-summary" id="autoSummary" data-i18n="autoIdle">Automatic study has not been run yet.</div>
+          <div class="table-scroll"><table><thead><tr><th data-i18n="algColumn">ALGORITHM</th><th data-i18n="successRate">SUCCESS</th><th data-i18n="avgDelta">AVG Δ</th><th data-i18n="avgVisited">AVG VISITED</th><th data-i18n="avgChecks">AVG CHECKS</th><th data-i18n="runtimeColumn">MEDIAN TIME</th></tr></thead><tbody id="autoRows"></tbody></table></div>
+        </div>
+        <div class="table-note"><span data-i18n="tableNote">Weighted shortest path = Dijkstra baseline. BFS minimizes edge count only. Custom one-step heuristics may get stuck. Times are approximate.</span><span class="framework">VANILLA JS · CANVAS 2D · ES MODULES</span></div>
+      </section>
+    </main>
+    <footer class="page-footer"><span>PATHLAB / ALGORITHM ENGINEERING DEMONSTRATOR</span><span>MIT LICENSE · BUILT WITH JAVASCRIPT</span></footer>
+  </div>
+  <script type="module" src="src/app.js"></script>
+</body>
+</html>

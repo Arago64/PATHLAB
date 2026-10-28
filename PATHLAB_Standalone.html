@@ -1,0 +1,897 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="theme-color" content="#09101e" />
+  <meta name="description" content="Explore and benchmark shortest-path algorithms on a random geometric graph. Includes two original directional heuristics." />
+  <title>PATHLAB | Algorithm Visualizer & Benchmark</title>
+  <style>
+:root{color-scheme:dark;--bg:#090f1c;--panel:#101a2b;--panel2:#0d1625;--border:#25334a;--muted:#7589a4;--text:#e5edfa;--cyan:#5eead4;--blue:#80aafb;--yellow:#f6c46a;--green:#59e6a8;--red:#fc8f98;--font:'DM Sans',Inter,system-ui,Segoe UI,sans-serif;--mono:'DM Mono',ui-monospace,SFMono-Regular,Consolas,monospace}*{box-sizing:border-box}body{margin:0;color:var(--text);font-family:var(--font);background:radial-gradient(ellipse at 50% -40%,#203357 0%,transparent 68%),var(--bg);font-size:13px;min-width:320px}button,input,select{font:inherit}button{cursor:pointer}button:disabled{opacity:.46;cursor:not-allowed}a{color:inherit;text-decoration:none}.shell{max-width:1800px;padding:0 30px;margin:auto}.header{height:100px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);margin-bottom:22px}.brand{display:flex;align-items:center;gap:13px}.logo{height:50px;width:50px;border-radius:13px;display:flex;align-items:center;justify-content:center;background:#162c41;color:var(--cyan);border:1px solid #2a576b}.logo svg{width:40px}.overline,.eyebrow{font-family:var(--mono);font-size:9px;font-weight:500;letter-spacing:2px;color:var(--cyan)}.brand h1{font-size:25px;letter-spacing:2px;line-height:1.15;margin:3px 0 0;font-weight:800}.brand h1 span{color:var(--cyan)}.brand h1 em{font-style:normal;border:1px solid #4d617f;color:#a6b9d2;border-radius:4px;padding:2px 5px;font:10px var(--mono);vertical-align:middle}.header-right{display:flex;align-items:center;gap:13px;font-family:var(--mono);font-size:10px;letter-spacing:.25px;color:#a5b2c7}.online-dot,.live-pulse{width:7px;height:7px;background:var(--cyan);display:inline-block;border-radius:50%;box-shadow:0 0 13px #5eead4aa}.lang-wrap select,.source-chip{color:#becde1;background:#101b2d;border:1px solid #304059;border-radius:7px;padding:10px;outline:none}.source-chip:hover{border-color:var(--cyan);color:var(--cyan)}.layout{display:grid;grid-template-columns:255px minmax(450px,1fr) 245px;grid-template-areas:'left center right' 'bench bench bench';gap:18px}.panel{background:linear-gradient(180deg,#13203588,#0d182acc);border:1px solid var(--border);border-radius:11px;padding:19px}.sidebar{grid-area:left}.metrics{grid-area:right}.panel-heading{display:flex;align-items:center;gap:11px;margin-bottom:24px}.panel-heading h2{font:600 10px var(--mono);letter-spacing:1.2px;margin:0;color:#d7e3f2}.section-number{color:var(--cyan);font:11px var(--mono)}.secondary-heading{margin:22px 0 13px}.control-group{margin:18px 0 21px}.control-line{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;color:#b9c6d9;font-size:12px}.chip{font:11px var(--mono);color:var(--cyan);border:1px solid #23475e;border-radius:4px;background:#142c3c;padding:3px 8px}input[type=range]{width:100%;accent-color:var(--cyan);cursor:pointer;height:5px}.range-label{display:flex;justify-content:space-between;font:10px var(--mono);color:var(--muted);margin-top:8px}.field{width:100%;background:#091524;color:var(--text);border:1px solid #33445b;padding:10px 11px;border-radius:6px;font:12px var(--mono);outline:none}.field:focus,.btn:focus-visible,select:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}.btn{background:#152339;color:#bdd0e6;border:1px solid #344762;padding:10px 13px;border-radius:7px;font:700 10px var(--mono);letter-spacing:.3px;transition:.16s ease;white-space:nowrap}.btn:hover:not(:disabled){background:#203854;border-color:#6184aa;color:#fff}.btn.primary{background:#53e0c8;color:#052329;border-color:#53e0c8}.btn.primary:hover{background:#91ffe7;border-color:#91ffe7;color:#031b1e}.btn.full{width:100%}.btn.ghost{background:transparent;border-style:dashed;margin-top:10px}.btn.endpoint{flex:1;padding:10px 7px;display:flex;justify-content:center;align-items:center;gap:6px}.btn.endpoint.active{border-color:var(--cyan);background:#15374a;color:#fff}.endpoint-buttons{display:flex;gap:8px}.badge-dot,.circle{width:8px;height:8px;display:inline-block;border-radius:50%}.badge-dot.start,.circle.a{background:#67d7f4}.badge-dot.goal,.circle.b{background:#ffc36d}.divider{height:1px;background:var(--border);margin:22px 0}.hint{font-size:11px;line-height:1.7;color:var(--muted);margin:0 0 13px}.algorithms{display:flex;flex-direction:column;gap:7px}.algorithm{border:1px solid #28394f;background:#0e1929;border-radius:7px;display:flex;align-items:center;text-align:left;color:#afc3d8;padding:11px 9px;gap:8px;width:100%}.algorithm:hover{border-color:#4f7a96}.algorithm.active{background:#19313e;border-color:#52c8b8;box-shadow:inset 3px 0 var(--cyan)}.algorithm .alg-dot{border:1px solid #647c94;width:15px;height:15px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center}.algorithm.active .alg-dot{border-color:var(--cyan)}.algorithm.active .alg-dot:after{content:'';height:7px;width:7px;background:var(--cyan);border-radius:50%}.alg-label{font-weight:700;font-size:11px;flex:1}.alg-badge{font:8px var(--mono);color:#819fba;background:#1a2a3f;padding:4px;border-radius:3px}.alg-badge.custom{color:var(--yellow);background:#382e24}.center{grid-area:center;min-width:0;display:flex;flex-direction:column}.canvas-head{display:flex;justify-content:space-between;align-items:center;padding:7px 0 17px}.canvas-head h2{font-size:23px;letter-spacing:-.5px;margin:5px 0 0}.eyebrow{display:flex;align-items:center;gap:8px}.canvas-tags{display:flex;gap:7px}.stat-tag{font:10px var(--mono);padding:8px 9px;border:1px solid #2c3a50;border-radius:5px;color:var(--muted);white-space:nowrap}.stat-tag strong{color:var(--text)}.canvas-container{position:relative;background:radial-gradient(ellipse at center,#13263b 0,#0a1423 67%);border:1px solid #2c415a;border-radius:10px;overflow:hidden;box-shadow:0 18px 50px #0003}.canvas-container:before{content:'';position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(#49749314 1px,transparent 1px),linear-gradient(90deg,#49749314 1px,transparent 1px);background-size:35px 35px}#graphCanvas{width:100%;aspect-ratio:1000/620;display:block;cursor:crosshair;position:relative;touch-action:manipulation}.canvas-topline{position:absolute;top:13px;left:14px;right:14px;display:flex;align-items:center;gap:9px;pointer-events:none;font:10px var(--mono);color:#adbed3}.canvas-topline>span:not(.interaction):not(.line){border:1px solid #2d4559;background:#0b1725c9;padding:6px 8px;border-radius:5px;display:flex;align-items:center;gap:7px}.canvas-topline b{font-weight:500;color:#eef8fd}.canvas-topline .line{height:1px;width:18px;background:#6c849b}.interaction{margin-left:auto;padding:6px 8px;color:var(--cyan);font:9px var(--mono);border-radius:5px;background:#112a35bb}.canvas-bottomline{position:absolute;bottom:12px;left:14px;right:14px;display:flex;gap:16px;flex-wrap:wrap;pointer-events:none}.legend{display:flex;align-items:center;gap:6px;font:9px var(--mono);color:#98adc4}.legend-dot{width:7px;height:7px;border-radius:50%}.legend-dot.explored{background:#60d9dc}.legend-dot.pending{background:#f9bc76}.legend-line{display:inline-block;height:3px;width:17px;border-radius:3px}.legend-line.baseline{background:#43536a}.legend-line.route{background:#71f5ac}.playback{display:flex;gap:9px;align-items:center;padding-top:15px}.playback-spacer{flex:1}.speed-control{display:flex;align-items:center;gap:7px;color:#afbdd1;font:10px var(--mono)}.speed-control input{width:86px}.speed-control output{min-width:26px;text-align:right;color:var(--cyan)}.muted{color:var(--muted)}.timeline{height:4px;background:#223247;border-radius:4px;overflow:hidden;margin-top:15px}.timeline>div{height:100%;width:0;background:var(--cyan);transition:width .08s}.footer-line{display:flex;justify-content:space-between;margin-top:10px;color:#889bb6;font:10px var(--mono);gap:12px}.insight{display:flex;gap:12px;align-items:flex-start;border:1px solid #29425b;background:#122237b8;border-radius:8px;padding:12px 15px;margin-top:18px;min-height:68px}.insight-icon{font-size:17px;color:#79c4f9}.insight p{margin:2px 0;font-size:12px;line-height:1.65;color:#b5c8e0}.result-status{border:1px solid #36536a;background:#12283b;color:#a2bed2;padding:8px 10px;border-radius:6px;display:inline-flex;gap:8px;align-items:center;font:10px var(--mono);letter-spacing:1px}.result-status.success{color:#89efbd;border-color:#326d54;background:#102c26}.result-status.failed{color:#ffb0b0;border-color:#70434b;background:#302024}.status-led{width:6px;height:6px;border-radius:50%;background:currentColor}.hero-metric{margin-top:27px;margin-bottom:21px}.metric-caption,.metric-unit{color:var(--muted);font:9px var(--mono);letter-spacing:1px}.metric-big{font:36px var(--mono);font-weight:500;margin:8px 0 4px;color:#f1f9fd;letter-spacing:-2px}.metric-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.metric-tile{background:#0b1829;border:1px solid #273a53;border-radius:7px;padding:11px 10px;min-height:72px}.metric-tile span{color:var(--muted);display:block;font:9px var(--mono);line-height:1.4;min-height:23px}.metric-tile strong{font:21px var(--mono);display:block;margin-top:4px}.mini-heading{display:flex;align-items:center;justify-content:space-between;margin-top:23px;margin-bottom:12px;gap:6px;font:9px var(--mono);color:#acbbcf;letter-spacing:.2px}.mini-heading strong{color:#e5f3fd;font-size:11px;font-weight:500}.bar-track{height:7px;background:#283a50;border-radius:6px;overflow:hidden}.bar-track>div{height:100%;width:0;background:linear-gradient(90deg,#347aab,#5aebcb);transition:width .2s}.tiny-text{color:#7085a0;font-size:10px;line-height:1.6;margin-top:9px}.explain{font-size:11px;line-height:1.75;color:#9fb2cb}.bench-panel{grid-area:bench;background:#101a2b;border:1px solid var(--border);border-radius:11px;margin-top:4px;overflow:hidden}.bench-heading{padding:23px 25px 19px;display:flex;align-items:center;justify-content:space-between;gap:15px}.bench-heading h2{font-size:22px;margin:6px 0}.bench-heading p{font-size:11px;color:var(--muted);margin:0}.table-scroll{overflow:auto}table{width:100%;border-collapse:collapse;min-width:760px}th{text-align:left;padding:13px 23px;background:#18263a;color:#8299b6;font:9px var(--mono);letter-spacing:.5px;border-bottom:1px solid #293b52}td{padding:13px 23px;color:#c4d4e6;border-bottom:1px solid #233248;font:11px var(--mono)}tbody tr{cursor:pointer;transition:background .12s}tbody tr:hover{background:#1a3044}tbody tr.selected{background:#17353e}td:first-child{font:700 12px var(--font)}td:first-child .sub{font:9px var(--mono);margin-top:3px;color:#6b8aa0}.num-green{color:var(--green)}.num-red{color:var(--red)}.num-yellow{color:var(--yellow)}.pill{font:9px var(--mono);padding:5px 7px;border-radius:4px;background:#1b3536;color:var(--green)}.pill.miss{color:var(--red);background:#3a242a}.table-note{display:flex;align-items:center;justify-content:space-between;padding:15px 23px;gap:20px;color:#748ba7;font-size:10px;line-height:1.5}.framework{font:9px var(--mono);white-space:nowrap;color:#7eb5c7}.page-footer{display:flex;justify-content:space-between;gap:12px;padding:27px 0;color:#526b86;font:9px var(--mono);letter-spacing:1px}.sr-only{position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden}
+@media(max-width:1300px){.shell{padding:0 18px}.layout{grid-template-columns:235px minmax(360px,1fr);grid-template-areas:'left center' 'left right' 'bench bench'}.metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;align-items:start}.metrics .panel-heading{grid-column:1/-1;margin-bottom:0}.metrics>.divider{display:none}.hero-metric{margin:0}.metric-grid{grid-column:2/4;grid-row:2/4}.result-status{grid-column:1;grid-row:2;justify-self:start}.metrics>.mini-heading,.metrics>.tiny-text,.metrics>.bar-track,.metrics>.explain{grid-column:1/-1;margin-top:5px}.metrics .mini-heading{margin-bottom:0}.metrics .tiny-text{margin:0}.metrics .explain{margin:0}}@media(max-width:850px){.layout{grid-template-columns:minmax(0,1fr);grid-template-areas:'center' 'left' 'right' 'bench'}.sidebar{display:grid;grid-template-columns:1fr 1fr;gap:0 22px}.sidebar>.divider{grid-column:1/-1;margin:8px 0}.sidebar>.panel-heading{grid-column:1/-1;margin:12px 0}.sidebar>.algorithms{grid-column:1/-1;display:grid;grid-template-columns:repeat(2,1fr)}.sidebar>.hint{grid-column:1/-1}.sidebar>.endpoint-buttons{grid-column:1}.sidebar>.ghost{grid-column:2;margin:0}.header-note{display:none}.canvas-head h2{font-size:20px}}@media(max-width:560px){.shell{padding:0 10px}.header{height:83px}.header-right{gap:6px}.source-chip{display:none}.brand h1{font-size:20px}.overline{font-size:7px}.logo{width:41px;height:41px}.canvas-tags{gap:3px}.stat-tag{padding:6px;font-size:9px}.canvas-container{margin:0 -2px}.canvas-topline .interaction{display:none}.canvas-bottomline{gap:10px}.playback{flex-wrap:wrap}.playback-spacer{display:none}.speed-control{width:100%;justify-content:flex-end}.sidebar{grid-template-columns:1fr}.sidebar>.algorithms{grid-template-columns:1fr 1fr}.sidebar>.ghost{grid-column:1;margin-top:8px}.metrics{display:block}.metrics .panel-heading{margin:0 0 15px}.metrics .result-status{margin:0}.metrics .hero-metric{margin:22px 0}.metric-grid{margin-bottom:20px}.bench-heading{padding:17px 13px;align-items:flex-start;flex-direction:column}.table-note{display:block;padding:12px}.framework{display:block;margin-top:8px}.page-footer{line-height:1.6;font-size:8px}}
+.section-block{padding:0 0 8px}.subsection-head{padding:0 25px 16px}.subsection-head h3{margin:0 0 6px;font:700 14px var(--font)}.subsection-head p{margin:0;color:var(--muted);font-size:11px;line-height:1.5}.auto-controls{display:flex;gap:12px;align-items:end;padding:0 25px 18px;flex-wrap:wrap}.auto-controls label{display:flex;flex-direction:column;gap:7px;min-width:130px;color:#b8c7d9;font-size:11px}.auto-summary{margin:0 25px 16px;padding:10px 12px;border:1px solid #2c4158;border-radius:7px;background:#0f1a2a;color:#a9bdd3;font:11px var(--mono)}.city-mode .canvas-container{background:linear-gradient(180deg,#d9cfb6,#cdb990)}#manualBlock[style*="none"]+#autoBlock{padding-top:6px}
+@media(max-width:700px){.auto-controls{padding:0 12px 16px}.subsection-head{padding:0 12px 14px}.auto-summary{margin:0 12px 12px}}
+</style>
+</head>
+<body>
+  <div class="shell">
+    <header class="header">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"><svg viewBox="0 0 42 42" fill="none"><path d="M9 30L19 12L33 23L20 31L9 30Z" stroke="currentColor" stroke-width="2"/><circle cx="9" cy="30" r="4" fill="#5EEAD4"/><circle cx="19" cy="12" r="4" fill="#93C5FD"/><circle cx="33" cy="23" r="4" fill="#FBBF24"/></svg></div>
+        <div><div class="overline">INTERACTIVE ENGINEERING LAB</div><h1>PATH<span>LAB</span> <em>01</em></h1></div>
+      </div>
+      <div class="header-right"><span class="online-dot"></span><span class="header-note" data-i18n="browser">100% browser · no dependencies</span>
+        <label class="lang-wrap" for="language"><span class="sr-only">Language</span><select id="language" aria-label="Language"><option value="en">EN</option><option value="ru">RU</option><option value="de">DE</option></select></label>
+        <a class="source-chip" href="https://github.com/new" target="_blank" rel="noopener" title="Create a GitHub repository">GITHUB ↗</a>
+      </div>
+    </header>
+
+    <main class="layout">
+      <aside class="panel sidebar">
+        <div class="panel-heading"><span class="section-number">01</span><h2 data-i18n="graphConfig">GRAPH CONFIGURATION</h2></div>
+        <div class="control-group">
+          <div class="control-line"><label for="nodeRange" data-i18n="nodes">Random nodes</label><output class="chip" id="nodeValue">105</output></div>
+          <input type="range" id="nodeRange" min="40" max="180" step="5" value="105" />
+          <div class="range-label"><span>40</span><span>180</span></div>
+        </div>
+        <div class="control-group">
+          <div class="control-line"><label for="edgeRange" data-i18n="connectivity">Connections per node</label><output class="chip" id="edgeValue">5</output></div>
+          <input type="range" id="edgeRange" min="1" max="6" step="1" value="5" />
+          <div class="range-label"><span data-i18n="sparse">Sparse</span><span data-i18n="dense">Dense</span></div>
+        </div>
+        <div class="control-group"><div class="control-line"><label for="seed" data-i18n="seed">Random seed</label></div><input class="field" id="seed" type="number" min="0" max="4294967295" value="2026" /></div>
+        <div class="control-group"><div class="control-line"><label for="visualStyle" data-i18n="visualStyle">Visual style</label></div><select class="field" id="visualStyle"><option value="classic">Classic graph</option><option value="city">City blocks</option></select></div>
+        <div class="control-group"><div class="control-line"><label for="labMode" data-i18n="labMode">Comparison lab</label></div><select class="field" id="labMode"><option value="manual">Manual + benchmark</option><option value="auto">Automatic study</option><option value="both">2-in-1</option></select></div>
+        <button class="btn primary full" id="generate"><span>✧</span><span data-i18n="newGraph">GENERATE NEW GRAPH</span></button>
+        <div class="divider"></div>
+        <div class="panel-heading secondary-heading"><span class="section-number">02</span><h2 data-i18n="routeSetup">ROUTE SETUP</h2></div>
+        <p class="hint" data-i18n="chooseHelp">Click a button, then select a point on the canvas.</p>
+        <div class="endpoint-buttons"><button class="btn endpoint" id="pickStart"><span class="badge-dot start"></span><span data-i18n="selectStart">SET POINT A</span></button><button class="btn endpoint" id="pickGoal"><span class="badge-dot goal"></span><span data-i18n="selectGoal">SET POINT B</span></button></div>
+        <button class="btn ghost full" id="randomEnds" data-i18n="randomPair">↝ Random A / B pair</button>
+        <div class="divider"></div>
+        <div class="panel-heading secondary-heading"><span class="section-number">03</span><h2 data-i18n="algorithmTitle">ALGORITHM</h2></div>
+        <div class="algorithms" id="algorithms" role="radiogroup" aria-label="Algorithm"></div>
+      </aside>
+
+      <section class="center">
+        <div class="canvas-head"><div><div class="eyebrow"><span class="live-pulse"></span><span data-i18n="liveVis">LIVE VISUALIZATION</span></div><h2 data-i18n="networkTitle">Geometric network</h2></div>
+          <div class="canvas-tags"><span class="stat-tag"><strong id="nodeCount">105</strong> <span data-i18n="nodesShort">nodes</span></span><span class="stat-tag"><strong id="edgeCount">—</strong> <span data-i18n="edgesShort">edges</span></span></div>
+        </div>
+        <div class="canvas-container">
+          <canvas id="graphCanvas" aria-label="Graph visualization. Click nodes to set start and destination." tabindex="0"></canvas>
+          <div class="canvas-topline"><span><i class="circle a"></i>A <b id="startLabel">—</b></span><span class="line"></span><span><i class="circle b"></i>B <b id="goalLabel">—</b></span><span class="interaction" id="pickStatus" data-i18n="clickToSelect">CLICK A NODE TO SET A</span></div>
+          <div class="canvas-bottomline"><span class="legend"><i class="legend-line baseline"></i><span data-i18n="allEdges">Graph</span></span><span class="legend"><i class="legend-dot explored"></i><span data-i18n="visited">Visited</span></span><span class="legend"><i class="legend-dot pending"></i><span data-i18n="frontier">Discovered</span></span><span class="legend"><i class="legend-line route"></i><span data-i18n="foundRoute">Route</span></span></div>
+        </div>
+        <div class="playback">
+          <button class="btn primary" id="run">▶ <span data-i18n="run">RUN SEARCH</span></button>
+          <button class="btn" id="pause">Ⅱ <span data-i18n="pause">PAUSE</span></button>
+          <button class="btn" id="step">⇥ <span data-i18n="step">STEP</span></button>
+          <div class="playback-spacer"></div><label class="speed-control" for="speed"><span data-i18n="speed">Speed</span><input id="speed" type="range" min="10" max="700" step="10" value="190" /><output id="speedValue">190</output><span class="muted">ev/s</span></label>
+        </div>
+        <div class="timeline"><div id="timelineFill"></div></div>
+        <div class="footer-line"><span id="runState" aria-live="polite">Ready. Choose an algorithm and press Run.</span><span id="stepCounter">0 / 0</span></div>
+        <div class="insight"><span class="insight-icon">ⓘ</span><p id="algorithmDescription">—</p></div>
+      </section>
+
+      <aside class="panel metrics">
+        <div class="panel-heading"><span class="section-number">04</span><h2 data-i18n="liveStats">LIVE STATISTICS</h2></div>
+        <div class="result-status" id="resultStatus"><span class="status-led"></span><span id="statusText">READY</span></div>
+        <div class="hero-metric"><div class="metric-caption" data-i18n="pathLength">PATH LENGTH</div><div class="metric-big" id="routeLength">—</div><div class="metric-unit" data-i18n="coordinateUnits">coordinate units</div></div>
+        <div class="metric-grid"><div class="metric-tile"><span data-i18n="relativeToBest">VS. OPTIMUM</span><strong id="relativeBest">—</strong></div><div class="metric-tile"><span data-i18n="hops">HOPS</span><strong id="hopCount">—</strong></div><div class="metric-tile"><span data-i18n="visitedCount">VISITED NODES</span><strong id="visitedCount">0</strong></div><div class="metric-tile"><span data-i18n="edgesChecked">EDGE CHECKS</span><strong id="checkedCount">0</strong></div></div>
+        <div class="mini-heading"><span data-i18n="coverage">SEARCH COVERAGE</span><span id="coverageValue">0%</span></div><div class="bar-track"><div id="coverageFill"></div></div>
+        <div class="tiny-text" data-i18n="coverageNote">Visited nodes as a share of the graph.</div>
+        <div class="divider"></div><div class="mini-heading"><span data-i18n="cpuTime">MEDIAN ALGORITHM TIME</span><strong id="timeValue">—</strong></div><div class="tiny-text" data-i18n="timingNote">Measured without animation; browser-dependent, 25 runs.</div>
+        <div class="divider"></div><div class="mini-heading" data-i18n="explainTitle">WHAT IS HAPPENING?</div><p class="explain" id="liveExplanation">—</p>
+      </aside>
+
+      <section class="bench-panel">
+        <div class="bench-heading"><div><div class="eyebrow" data-i18n="benchmarkEyebrow">MEASURABLE PERFORMANCE</div><h2 data-i18n="benchmarkTitle">Algorithm benchmark</h2><p data-i18n="benchSubtitle">All methods run on the same graph. Click a row to replay its search.</p></div><button class="btn" id="benchmark">↻ <span data-i18n="rerunBench">RE-RUN BENCHMARK</span></button></div>
+        <div class="section-block manual-block" id="manualBlock">
+          <div class="subsection-head"><h3 data-i18n="manualBench">Manual comparison</h3><p data-i18n="manualBenchDesc">Single-map benchmark for the graph currently shown above.</p></div>
+          <div class="table-scroll"><table><thead><tr><th data-i18n="algColumn">ALGORITHM</th><th data-i18n="lengthColumn">LENGTH</th><th data-i18n="deltaColumn">VS. OPTIMUM</th><th data-i18n="visitedColumn">VISITED</th><th data-i18n="checksColumn">CHECKS</th><th data-i18n="runtimeColumn">MEDIAN TIME</th><th data-i18n="resultColumn">RESULT</th></tr></thead><tbody id="benchmarkRows"></tbody></table></div>
+        </div>
+        <div class="section-block auto-block" id="autoBlock">
+          <div class="subsection-head"><h3 data-i18n="autoTitle">Automatic study</h3><p data-i18n="autoSubtitle">Run the same algorithms on many random maps and aggregate the results.</p></div>
+          <div class="auto-controls">
+            <label><span data-i18n="autoMaps">Maps</span><input class="field" id="autoMaps" type="number" min="5" max="250" step="5" value="40" /></label>
+            <label><span data-i18n="autoSeedStep">Seed step</span><input class="field" id="autoSeedStep" type="number" min="1" max="99999" step="1" value="97" /></label>
+            <button class="btn primary" id="runAuto">⚗ <span data-i18n="runAuto">RUN AUTO STUDY</span></button>
+          </div>
+          <div class="auto-summary" id="autoSummary" data-i18n="autoIdle">Automatic study has not been run yet.</div>
+          <div class="table-scroll"><table><thead><tr><th data-i18n="algColumn">ALGORITHM</th><th data-i18n="successRate">SUCCESS</th><th data-i18n="avgDelta">AVG Δ</th><th data-i18n="avgVisited">AVG VISITED</th><th data-i18n="avgChecks">AVG CHECKS</th><th data-i18n="runtimeColumn">MEDIAN TIME</th></tr></thead><tbody id="autoRows"></tbody></table></div>
+        </div>
+        <div class="table-note"><span data-i18n="tableNote">Weighted shortest path = Dijkstra baseline. BFS minimizes edge count only. Custom one-step heuristics may get stuck. Times are approximate.</span><span class="framework">VANILLA JS · CANVAS 2D · ES MODULES</span></div>
+      </section>
+    </main>
+    <footer class="page-footer"><span>PATHLAB / ALGORITHM ENGINEERING DEMONSTRATOR</span><span>MIT LICENSE · BUILT WITH JAVASCRIPT</span></footer>
+  </div>
+  <script>
+// ---- graph.js ----
+/** Deterministic connected geometric graph generator. No dependencies. */
+const WIDTH = 1000;
+const HEIGHT = 620;
+
+function mulberry32(seed) {
+  let t = seed >>> 0;
+  return () => {
+    t += 0x6D2B79F5;
+    let x = t;
+    x = Math.imul(x ^ (x >>> 15), x | 1);
+    x ^= x + Math.imul(x ^ (x >>> 7), x | 61);
+    return ((x ^ (x >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function euclidean(a, b) {
+  return Math.hypot(a.x - b.x, a.y - b.y);
+}
+
+function generateGraph({ count = 105, neighbors = 5, seed = 42 } = {}) {
+  if (!Number.isInteger(count) || count < 2 || count > 500) throw new RangeError('count must be 2…500');
+  if (!Number.isInteger(neighbors) || neighbors < 1 || neighbors > count - 1) throw new RangeError('Invalid neighbor count');
+  const random = mulberry32(seed);
+  const nodes = [];
+  const minSep = Math.max(14, Math.sqrt((WIDTH * HEIGHT) / count) * 0.36);
+  const margin = 31;
+  for (let id = 0; id < count; id++) {
+    let node;
+    for (let tries = 0; tries < 90; tries++) {
+      node = { id, x: margin + random() * (WIDTH - 2 * margin), y: margin + random() * (HEIGHT - 2 * margin) };
+      if (nodes.every(other => euclidean(node, other) >= minSep)) break;
+    }
+    nodes.push(node);
+  }
+  const candidates = [];
+  const byNode = Array.from({ length: count }, () => []);
+  for (let u = 0; u < count; u++) for (let v = u + 1; v < count; v++) {
+    const w = euclidean(nodes[u], nodes[v]);
+    const pair = { u, v, w };
+    candidates.push(pair);
+    byNode[u].push(pair);
+    byNode[v].push(pair);
+  }
+  const chosen = new Map();
+  const add = ({ u, v, w }) => chosen.set(`${u}:${v}`, { u, v, w });
+  for (const pairs of byNode) {
+    pairs.sort((a, b) => a.w - b.w);
+    for (const pair of pairs.slice(0, neighbors)) add(pair);
+  }
+  // Minimum spanning tree guarantees reachability even for sparse networks.
+  const parent = Array.from({ length: count }, (_, i) => i);
+  const root = n => {
+    while (parent[n] !== n) { parent[n] = parent[parent[n]]; n = parent[n]; }
+    return n;
+  };
+  candidates.sort((a, b) => a.w - b.w);
+  for (const pair of candidates) {
+    const ru = root(pair.u), rv = root(pair.v);
+    if (ru !== rv) { parent[ru] = rv; add(pair); }
+  }
+  const edges = [...chosen.values()].map((e, id) => ({ ...e, id }));
+  const adj = Array.from({ length: count }, () => []);
+  for (const { u, v, w, id } of edges) {
+    adj[u].push({ to: v, w, edgeId: id });
+    adj[v].push({ to: u, w, edgeId: id });
+  }
+  for (const list of adj) list.sort((a, b) => a.w - b.w);
+  let start = 0, goal = count - 1, maxDist = -1;
+  for (const pair of candidates) {
+    if (pair.w > maxDist) { maxDist = pair.w; start = pair.u; goal = pair.v; }
+  }
+  return { nodes, edges, adj, start, goal, seed, neighbors };
+}
+
+function findEdge(graph, a, b) {
+  return graph.adj[a].find(entry => entry.to === b)?.edgeId ?? -1;
+}
+
+// ---- algorithms.js ----
+/** Pathfinding over weighted, undirected geometric graphs. */
+
+const ALGORITHMS = [
+  { id: 'dijkstra', name: 'Dijkstra', kind: 'optimal', description: 'Expands the lowest-cost frontier first. Guaranteed minimum weighted distance with non-negative edges.', complexity: 'O((V + E) log V)' },
+  { id: 'astar', name: 'A*', kind: 'optimal', description: 'Uses exact travel distance plus straight-line heuristic. Optimal because Euclidean distance never overestimates.', complexity: 'O((V + E) log V)' },
+  { id: 'bfs', name: 'Breadth-first search', kind: 'baseline', description: 'Minimizes hops, not weighted distance. Useful as an unweighted baseline.', complexity: 'O(V + E)' },
+  { id: 'greedy', name: 'Greedy best-first', kind: 'heuristic', description: 'Chooses the frontier node closest to B. Fast in some graphs; not shortest-path optimal.', complexity: 'O((V + E) log V)' },
+  { id: 'vector', name: 'Vector Chase', kind: 'custom', description: 'Custom #1: at each node, looks only one edge ahead; picks the most goal-aligned neighbor that reduces remaining straight-line distance. Never backtracks.', complexity: 'O(E), no backtracking' },
+  { id: 'course', name: 'Course Lock', kind: 'custom', description: 'Custom #2: follows the original A→B bearing, penalizes sideways deviation and prefers forward projected progress. Never backtracks.', complexity: 'O(E), no backtracking' }
+];
+
+class MinHeap {
+  constructor() { this.data = []; }
+  get size() { return this.data.length; }
+  push(item) {
+    const a = this.data; a.push(item);
+    for (let i = a.length - 1; i > 0;) {
+      const p = (i - 1) >> 1;
+      if (a[p].priority <= a[i].priority) break;
+      [a[i], a[p]] = [a[p], a[i]]; i = p;
+    }
+  }
+  pop() {
+    const a = this.data;
+    if (a.length === 0) return undefined;
+    const top = a[0], end = a.pop();
+    if (a.length) {
+      a[0] = end;
+      let i = 0;
+      while (true) {
+        let left = i * 2 + 1, right = left + 1, min = i;
+        if (left < a.length && a[left].priority < a[min].priority) min = left;
+        if (right < a.length && a[right].priority < a[min].priority) min = right;
+        if (min === i) break;
+        [a[min], a[i]] = [a[i], a[min]]; i = min;
+      }
+    }
+    return top;
+  }
+}
+
+function output(graph, start, goal, prev, visited, checks, trace) {
+  const path = [];
+  let cursor = goal;
+  const seen = new Set();
+  while (cursor !== -1 && cursor !== undefined && !seen.has(cursor)) {
+    seen.add(cursor); path.push(cursor);
+    if (cursor === start) break;
+    cursor = prev[cursor];
+  }
+  const found = path.at(-1) === start;
+  if (!found) path.length = 0;
+  else path.reverse();
+  const pathEdges = [];
+  let distance = 0;
+  for (let i = 1; i < path.length; i++) {
+    const a = path[i - 1], b = path[i];
+    pathEdges.push(findEdge(graph, a, b));
+    distance += euclidean(graph.nodes[a], graph.nodes[b]);
+  }
+  return { found, path, pathEdges, distance: found ? distance : Infinity, hops: found ? path.length - 1 : 0, visited, checks, trace };
+}
+
+function emit(trace, event) { if (trace) trace.push(event); }
+
+function prioritySearch(graph, start, goal, kind, trace) {
+  const n = graph.nodes.length;
+  const g = new Float64Array(n).fill(Infinity);
+  const prev = new Int32Array(n).fill(-1);
+  const closed = new Uint8Array(n);
+  const heap = new MinHeap();
+  const h = id => euclidean(graph.nodes[id], graph.nodes[goal]);
+  g[start] = 0;
+  heap.push({ id: start, priority: kind === 'greedy' ? h(start) : kind === 'astar' ? h(start) : 0 });
+  let visited = 0, checks = 0;
+  while (heap.size) {
+    const { id: u } = heap.pop();
+    if (closed[u]) continue;
+    closed[u] = 1; visited++;
+    emit(trace, { type: 'visit', node: u });
+    if (u === goal) break;
+    for (const edge of graph.adj[u]) {
+      checks++;
+      const v = edge.to;
+      emit(trace, { type: 'check', edge: edge.edgeId, node: v });
+      if (closed[v]) continue;
+      const candidate = g[u] + edge.w;
+      const improve = kind === 'greedy' ? prev[v] === -1 && v !== start : candidate < g[v] - 1e-10;
+      if (improve) {
+        g[v] = candidate;
+        prev[v] = u;
+        const priority = kind === 'greedy' ? h(v) : candidate + (kind === 'astar' ? h(v) : 0);
+        heap.push({ id: v, priority });
+        emit(trace, { type: 'discover', edge: edge.edgeId, node: v });
+      }
+    }
+  }
+  return output(graph, start, goal, prev, visited, checks, trace);
+}
+
+function bfs(graph, start, goal, trace) {
+  const n = graph.nodes.length;
+  const prev = new Int32Array(n).fill(-1);
+  const seen = new Uint8Array(n);
+  const queue = [start]; let head = 0, visited = 0, checks = 0;
+  seen[start] = 1;
+  while (head < queue.length) {
+    const u = queue[head++]; visited++;
+    emit(trace, { type: 'visit', node: u });
+    if (u === goal) break;
+    for (const edge of graph.adj[u]) {
+      checks++;
+      const v = edge.to;
+      emit(trace, { type: 'check', edge: edge.edgeId, node: v });
+      if (seen[v]) continue;
+      seen[v] = 1; prev[v] = u; queue.push(v);
+      emit(trace, { type: 'discover', edge: edge.edgeId, node: v });
+    }
+  }
+  return output(graph, start, goal, prev, visited, checks, trace);
+}
+
+function directional(graph, start, goal, kind, trace) {
+  const n = graph.nodes.length;
+  const prev = new Int32Array(n).fill(-1);
+  const seen = new Uint8Array(n);
+  const a = graph.nodes[start], b = graph.nodes[goal];
+  const dx = b.x - a.x, dy = b.y - a.y;
+  const length = Math.hypot(dx, dy) || 1;
+  const ux = dx / length, uy = dy / length;
+  let u = start, visited = 0, checks = 0;
+  seen[start] = 1;
+  for (let iteration = 0; iteration < n && u !== goal; iteration++) {
+    visited++;
+    emit(trace, { type: 'visit', node: u });
+    const pos = graph.nodes[u];
+    const distanceToGoal = euclidean(pos, b);
+    const progress = (pos.x - a.x) * ux + (pos.y - a.y) * uy;
+    let best = null, bestScore = Infinity;
+    for (const edge of graph.adj[u]) {
+      checks++;
+      const v = edge.to, next = graph.nodes[v];
+      emit(trace, { type: 'check', edge: edge.edgeId, node: v });
+      if (seen[v]) continue;
+      let score;
+      if (kind === 'vector') {
+        const remaining = euclidean(next, b);
+        if (remaining >= distanceToGoal - 1e-8) continue;
+        const stepX = next.x - pos.x, stepY = next.y - pos.y;
+        const cosine = (stepX * (b.x - pos.x) + stepY * (b.y - pos.y)) / (edge.w * distanceToGoal);
+        score = (1 - cosine) * 500 + remaining * 0.08;
+      } else {
+        const nextProgress = (next.x - a.x) * ux + (next.y - a.y) * uy;
+        if (nextProgress <= progress + 1e-8 || nextProgress > length + 1e-8) continue;
+        const deviation = Math.abs((next.x - a.x) * uy - (next.y - a.y) * ux);
+        score = deviation * 2.4 + (length - nextProgress) * 0.24 + edge.w * 0.12;
+      }
+      if (score < bestScore) { bestScore = score; best = edge; }
+    }
+    if (!best) break;
+    prev[best.to] = u;
+    seen[best.to] = 1;
+    emit(trace, { type: 'discover', edge: best.edgeId, node: best.to });
+    u = best.to;
+  }
+  if (u === goal) { visited++; emit(trace, { type: 'visit', node: goal }); }
+  return output(graph, start, goal, prev, visited, checks, trace);
+}
+
+function solve(graph, start, goal, algorithm, { record = false } = {}) {
+  if (!Number.isInteger(start) || !Number.isInteger(goal) || start < 0 || goal < 0 || start >= graph.nodes.length || goal >= graph.nodes.length) throw new RangeError('Invalid start/goal');
+  const trace = record ? [] : null;
+  if (start === goal) return { found: true, path: [start], pathEdges: [], distance: 0, hops: 0, visited: 1, checks: 0, trace: trace ?? null };
+  switch (algorithm) {
+    case 'dijkstra': case 'astar': case 'greedy': return prioritySearch(graph, start, goal, algorithm, trace);
+    case 'bfs': return bfs(graph, start, goal, trace);
+    case 'vector': case 'course': return directional(graph, start, goal, algorithm, trace);
+    default: throw new Error('Unknown algorithm: ' + algorithm);
+  }
+}
+
+/** Median wall clock time across repeated no-trace runs; not a cross-device benchmark. */
+function benchmark(graph, start, goal, repeat = 25) {
+  const output = {};
+  for (const { id } of ALGORITHMS) {
+    solve(graph, start, goal, id); // JIT warm-up
+    const times = [];
+    let result;
+    for (let i = 0; i < repeat; i++) {
+      const t0 = performance.now();
+      result = solve(graph, start, goal, id);
+      times.push(performance.now() - t0);
+    }
+    times.sort((a, b) => a - b);
+    output[id] = { ...result, ms: times[Math.floor(times.length / 2)] };
+  }
+  return output;
+}
+
+// ---- app.js ----
+
+const $ = id => document.getElementById(id);
+const I18N = {
+  en: {
+    browser:'100% browser · no dependencies',graphConfig:'GRAPH CONFIGURATION',nodes:'Random nodes',connectivity:'Connections per node',sparse:'Sparse',dense:'Dense',seed:'Random seed',newGraph:'GENERATE NEW GRAPH',routeSetup:'ROUTE SETUP',chooseHelp:'Click a button, then select a point on the canvas.',selectStart:'SET POINT A',selectGoal:'SET POINT B',randomPair:'↝ Random A / B pair',algorithmTitle:'ALGORITHM',liveVis:'LIVE VISUALIZATION',networkTitle:'Geometric network',nodesShort:'nodes',edgesShort:'edges',clickToSelect:'CLICK A NODE TO SET A',pickA:'CLICK A NODE TO SET A',pickB:'CLICK A NODE TO SET B',allEdges:'Graph',visited:'Visited',frontier:'Discovered',foundRoute:'Route',run:'RUN SEARCH',pause:'PAUSE',resume:'RESUME',step:'STEP',speed:'Speed',liveStats:'LIVE STATISTICS',pathLength:'PATH LENGTH',coordinateUnits:'coordinate units',relativeToBest:'VS. OPTIMUM',hops:'HOPS',visitedCount:'VISITED NODES',edgesChecked:'EDGE CHECKS',coverage:'SEARCH COVERAGE',coverageNote:'Visited nodes as a share of the graph.',cpuTime:'MEDIAN ALGORITHM TIME',timingNote:'Measured without animation; browser-dependent, 25 runs.',explainTitle:'WHAT IS HAPPENING?',benchmarkEyebrow:'MEASURABLE PERFORMANCE',benchmarkTitle:'Algorithm benchmark',benchSubtitle:'All methods run on the same graph. Click a row to replay its search.',rerunBench:'RE-RUN BENCHMARK',algColumn:'ALGORITHM',lengthColumn:'LENGTH',deltaColumn:'VS. OPTIMUM',visitedColumn:'VISITED',checksColumn:'CHECKS',runtimeColumn:'MEDIAN TIME',resultColumn:'RESULT',tableNote:'Weighted shortest path = Dijkstra baseline. BFS minimizes edge count only. Custom one-step heuristics may get stuck. Times are approximate.',ready:'READY',running:'RUNNING',paused:'PAUSED',found:'PATH FOUND',failed:'LOCAL DEAD END',optimal:'OPTIMAL',success:'FOUND',stuck:'STUCK',readyLine:'Ready. Choose an algorithm and press Run.',runningLine:'Exploring network connections…',pauseLine:'Paused. Press Step or Resume.',foundLine:'Route complete.',failedLine:'This method got stuck before reaching B.',best:'Optimal',baseline:'Baseline',heuristic:'Heuristic',custom:'Custom',expReady:'Press Run to see which nodes the algorithm visits and how it chooses a route.',expRunning:'Cyan nodes have been expanded; orange nodes have been discovered. Edges are tested step by step.',expOptimal:'This method guarantees the minimum total edge length for this graph.',expNonoptimal:'The route is valid, but longer than the Dijkstra baseline.',expStuck:'The local-only rule cannot find a forward neighbor. A reachable route still exists via Dijkstra.',
+    desc:{dijkstra:'Dijkstra expands the cheapest available weighted frontier. With positive edge lengths, the result is always shortest.',astar:'A* combines distance traveled with Euclidean distance to the goal. This heuristic is admissible, so the result is optimal.',bfs:'BFS minimizes the number of connections, not the total distance of weighted edges.',greedy:'Greedy best-first expands the frontier point closest to B, without accounting for the route already taken.',vector:'CUSTOM #1 — VECTOR CHASE: At each step, inspect only direct neighbors; choose the edge whose direction points most closely toward B, requiring a decrease in distance to B. No backtracking.',course:'CUSTOM #2 — COURSE LOCK: Establish an A→B heading; prioritize forward neighbors closest to that original line, strongly penalizing lateral deviation. No backtracking.'}
+  },
+  ru: {
+    browser:'Работает в браузере · без библиотек',graphConfig:'ПАРАМЕТРЫ ГРАФА',nodes:'Случайные точки',connectivity:'Связи на точку',sparse:'Редко',dense:'Густо',seed:'Seed генератора',newGraph:'СОЗДАТЬ НОВЫЙ ГРАФ',routeSetup:'НАЧАЛО И КОНЕЦ',chooseHelp:'Нажми кнопку, затем выбери точку на графе.',selectStart:'ВЫБРАТЬ A',selectGoal:'ВЫБРАТЬ B',randomPair:'↝ Случайные A / B',algorithmTitle:'АЛГОРИТМ',liveVis:'АНИМАЦИЯ В РЕАЛЬНОМ ВРЕМЕНИ',networkTitle:'Геометрический граф',nodesShort:'узлов',edgesShort:'рёбер',clickToSelect:'НАЖМИ НА УЗЕЛ ДЛЯ A',pickA:'НАЖМИ НА УЗЕЛ ДЛЯ A',pickB:'НАЖМИ НА УЗЕЛ ДЛЯ B',allEdges:'Граф',visited:'Проверено',frontier:'Обнаружено',foundRoute:'Маршрут',run:'ЗАПУСК',pause:'ПАУЗА',resume:'ПРОДОЛЖИТЬ',step:'ШАГ',speed:'Скорость',liveStats:'СТАТИСТИКА',pathLength:'ДЛИНА ПУТИ',coordinateUnits:'условных единиц',relativeToBest:'К ОПТИМУМУ',hops:'ПЕРЕХОДОВ',visitedCount:'ПРОВЕРЕНО УЗЛОВ',edgesChecked:'ПРОВЕРОК РЁБЕР',coverage:'ОХВАТ ПОИСКА',coverageNote:'Доля узлов, извлечённых из очереди / посещённых.',cpuTime:'МЕДИАНА ВРЕМЕНИ',timingNote:'Без анимации, зависит от браузера; 25 прогонов.',explainTitle:'ЧТО ПРОИСХОДИТ?',benchmarkEyebrow:'ИЗМЕРИМАЯ ЭФФЕКТИВНОСТЬ',benchmarkTitle:'Сравнение алгоритмов',benchSubtitle:'Все методы проверяются на одном графе. Нажми на строку для анимации.',rerunBench:'ПОВТОРИТЬ ТЕСТЫ',algColumn:'АЛГОРИТМ',lengthColumn:'ДЛИНА',deltaColumn:'К ОПТИМУМУ',visitedColumn:'УЗЛОВ',checksColumn:'ПРОВЕРОК',runtimeColumn:'МЕДИАНА',resultColumn:'ИТОГ',tableNote:'Эталон кратчайшего пути — Dijkstra. BFS минимизирует число переходов. Авторские эвристики без возвратов могут застрять. Время приблизительно.',ready:'ГОТОВО',running:'РАБОТАЕТ',paused:'ПАУЗА',found:'ПУТЬ НАЙДЕН',failed:'АЛГОРИТМ ЗАСТРЯЛ',optimal:'ОПТИМУМ',success:'НАЙДЕН',stuck:'ТУПИК',readyLine:'Выбери алгоритм и нажми «Запуск».',runningLine:'Исследуем связи графа…',pauseLine:'Пауза. Нажми «Шаг» или «Продолжить».',foundLine:'Маршрут построен.',failedLine:'Алгоритм зашёл в тупик, хотя путь существует.',best:'Оптимальный',baseline:'Базовый',heuristic:'Эвристика',custom:'Авторский',expReady:'Нажми «Запуск», чтобы увидеть, как алгоритм ищет маршрут.',expRunning:'Голубые узлы уже обработаны, оранжевые обнаружены. Проверки рёбер показаны по шагам.',expOptimal:'Алгоритм гарантирует минимальную суммарную длину рёбер графа.',expNonoptimal:'Маршрут корректный, но длиннее оптимального пути Dijkstra.',expStuck:'В локальном правиле нет подходящего следующего шага. Dijkstra всё равно находит маршрут.',
+    desc:{dijkstra:'Dijkstra выбирает ближайший по уже пройденной длине узел. Для положительных весов гарантированно находит кратчайший путь.',astar:'A* учитывает пройденный путь и расстояние по прямой до B. Такая оценка не завышает остаток, поэтому результат оптимален.',bfs:'BFS ищет маршрут с минимальным числом переходов, но не обязательно с минимальной общей длиной.',greedy:'Жадный поиск сначала проверяет обнаруженный узел, который ближе всего по прямой к B, не учитывая весь пройденный путь.',vector:'АВТОРСКИЙ №1 — VECTOR CHASE: На каждом шаге смотрим только соседей, выбираем направление, наиболее точно обращённое к B. Каждый шаг обязан сокращать расстояние до цели. Без возвратов.',course:'АВТОРСКИЙ №2 — COURSE LOCK: Сначала прокладываем прямой курс A→B. Далее выбираем соседа с движением вперёд и минимальным отклонением от этой линии. Без возвратов.'}
+  },
+  de: {
+    browser:'100 % im Browser · keine Abhängigkeiten',graphConfig:'GRAPH-EINSTELLUNGEN',nodes:'Zufällige Knoten',connectivity:'Verbindungen pro Knoten',sparse:'Wenige',dense:'Viele',seed:'Zufalls-Seed',newGraph:'NEUEN GRAPH ERZEUGEN',routeSetup:'START UND ZIEL',chooseHelp:'Schaltfläche drücken und anschließend einen Knoten anklicken.',selectStart:'PUNKT A WÄHLEN',selectGoal:'PUNKT B WÄHLEN',randomPair:'↝ Zufälliges Paar A / B',algorithmTitle:'ALGORITHMUS',liveVis:'LIVE-VISUALISIERUNG',networkTitle:'Geometrischer Graph',nodesShort:'Knoten',edgesShort:'Kanten',clickToSelect:'KNOTEN FÜR A ANKLICKEN',pickA:'KNOTEN FÜR A ANKLICKEN',pickB:'KNOTEN FÜR B ANKLICKEN',allEdges:'Graph',visited:'Besucht',frontier:'Entdeckt',foundRoute:'Route',run:'STARTEN',pause:'PAUSE',resume:'FORTSETZEN',step:'SCHRITT',speed:'Tempo',liveStats:'LIVE-STATISTIK',pathLength:'WEGLÄNGE',coordinateUnits:'Koordinateneinheiten',relativeToBest:'ZUM OPTIMUM',hops:'SCHRITTE',visitedCount:'BESUCHTE KNOTEN',edgesChecked:'KANTENPRÜFUNGEN',coverage:'SUCHABDECKUNG',coverageNote:'Anteil der tatsächlich besuchten Knoten.',cpuTime:'MEDIAN DER LAUFZEIT',timingNote:'Ohne Animation; browserabhängig, 25 Durchläufe.',explainTitle:'WAS GESCHIEHT?',benchmarkEyebrow:'MESSBARE LEISTUNG',benchmarkTitle:'Algorithmenvergleich',benchSubtitle:'Alle Verfahren auf demselben Graphen. Zeile anklicken für Animation.',rerunBench:'BENCHMARK WIEDERHOLEN',algColumn:'ALGORITHMUS',lengthColumn:'LÄNGE',deltaColumn:'ZUM OPTIMUM',visitedColumn:'BESUCHT',checksColumn:'PRÜFUNGEN',runtimeColumn:'MEDIANZEIT',resultColumn:'ERGEBNIS',tableNote:'Dijkstra ist die Referenz für den kürzesten gewichteten Weg. BFS minimiert nur Kanten. Eigene Heuristiken ohne Rücksprung können scheitern. Zeiten sind Näherungen.',ready:'BEREIT',running:'LÄUFT',paused:'PAUSIERT',found:'WEG GEFUNDEN',failed:'SACKGASSE',optimal:'OPTIMAL',success:'GEFUNDEN',stuck:'SACKGASSE',readyLine:'Algorithmus auswählen und Starten drücken.',runningLine:'Verbindungen werden durchsucht…',pauseLine:'Pausiert. Schritt oder Fortsetzen drücken.',foundLine:'Route gefunden.',failedLine:'Die Heuristik bleibt trotz existierendem Weg stecken.',best:'Optimal',baseline:'Basis',heuristic:'Heuristik',custom:'Eigene',expReady:'Starten drücken, um die Suche Schritt für Schritt zu sehen.',expRunning:'Türkis = besuchte Knoten, Orange = entdeckte Knoten. Kanten werden einzeln geprüft.',expOptimal:'Dieses Verfahren garantiert die kürzeste Gesamtweglänge des Graphen.',expNonoptimal:'Die Route ist gültig, aber länger als die Dijkstra-Referenz.',expStuck:'Ohne Rücksprung kann die Heuristik keinen nächsten Vorwärtsschritt finden. Dijkstra findet dennoch einen Weg.',
+    desc:{dijkstra:'Dijkstra untersucht den bisher günstigsten Knoten und garantiert bei positiven Kantengewichten den kürzesten Weg.',astar:'A* kombiniert zurückgelegte Strecke mit der Luftlinienentfernung nach B. Diese Heuristik ist zulässig, daher ist der Weg optimal.',bfs:'Die Breitensuche minimiert die Anzahl der Kanten, nicht deren aufsummierte Länge.',greedy:'Greedy Best-First bevorzugt den aktuell entdeckten Knoten mit der kleinsten Luftlinienentfernung zum Ziel.',vector:'EIGEN #1 — VECTOR CHASE: Betrachtet pro Schritt nur direkte Nachbarn und folgt der möglichst genauen Richtung nach B. Die Luftlinienentfernung muss sinken. Kein Zurückgehen.',course:'EIGEN #2 — COURSE LOCK: Legt zuerst eine Gerade A→B fest, bevorzugt dann vorwärtsgerichtete Nachbarn mit möglichst kleinem Abstand zur Kurslinie. Kein Zurückgehen.'}
+  }
+};
+
+const EXTRA_I18N = {
+  en: {
+    visualStyle:'VISUAL STYLE', labMode:'COMPARISON LAB', networkTitleCity:'Street network',
+    manualBench:'Manual comparison', manualBenchDesc:'Single-map benchmark for the graph currently shown above.',
+    autoTitle:'Automatic study', autoSubtitle:'Run the same algorithms on many random maps and aggregate the results.',
+    autoMaps:'Maps', autoSeedStep:'Seed step', runAuto:'RUN AUTO STUDY', autoIdle:'Automatic study has not been run yet.', autoRunning:'Running automatic study…',
+    successRate:'SUCCESS', avgDelta:'AVG Δ', avgVisited:'AVG VISITED', avgChecks:'AVG CHECKS',
+    classicLabel:'Classic graph', cityLabel:'City blocks', modeManual:'Manual + benchmark', modeAuto:'Automatic study', modeBoth:'2-in-1',
+    autoDone:'Automatic study complete.', autoSummary:'{maps} maps · {nodes} nodes · {neighbors} links/node · base seed {seed} · step {step}'
+  },
+  ru: {
+    visualStyle:'СТИЛЬ ОТОБРАЖЕНИЯ', labMode:'РЕЖИМ СРАВНЕНИЯ', networkTitleCity:'Сеть улиц',
+    manualBench:'Ручное сравнение', manualBenchDesc:'Тест на одной текущей карте.',
+    autoTitle:'Автоматическое исследование', autoSubtitle:'Запуск всех алгоритмов на серии случайных карт с агрегированием результатов.',
+    autoMaps:'Карт', autoSeedStep:'Шаг seed', runAuto:'ЗАПУСТИТЬ AUTO STUDY', autoIdle:'Автоматическое исследование ещё не запускалось.', autoRunning:'Выполняется автоматическое исследование…',
+    successRate:'УСПЕХ', avgDelta:'СРЕДН. Δ', avgVisited:'СРЕДН. УЗЛОВ', avgChecks:'СРЕДН. ПРОВЕРОК',
+    classicLabel:'Классический граф', cityLabel:'Городские кварталы', modeManual:'Ручной + benchmark', modeAuto:'Автоисследование', modeBoth:'2-в-1',
+    autoDone:'Автоматическое исследование завершено.', autoSummary:'{maps} карт · {nodes} узлов · {neighbors} связей/узел · базовый seed {seed} · шаг {step}'
+  },
+  de: {
+    visualStyle:'DARSTELLUNGSSTIL', labMode:'VERGLEICHSMODUS', networkTitleCity:'Straßennetz',
+    manualBench:'Manueller Vergleich', manualBenchDesc:'Benchmark für genau den oben gezeigten Graphen.',
+    autoTitle:'Automatische Studie', autoSubtitle:'Alle Algorithmen auf vielen Zufallsgraphen ausführen und Ergebnisse aggregieren.',
+    autoMaps:'Karten', autoSeedStep:'Seed-Schritt', runAuto:'AUTO-STUDIE STARTEN', autoIdle:'Die automatische Studie wurde noch nicht ausgeführt.', autoRunning:'Automatische Studie läuft…',
+    successRate:'ERFOLG', avgDelta:'Ø Δ', avgVisited:'Ø BESUCHT', avgChecks:'Ø PRÜFUNGEN',
+    classicLabel:'Klassischer Graph', cityLabel:'Stadtblöcke', modeManual:'Manuell + Benchmark', modeAuto:'Automatische Studie', modeBoth:'2-in-1',
+    autoDone:'Automatische Studie abgeschlossen.', autoSummary:'{maps} Karten · {nodes} Knoten · {neighbors} Verbindungen/Knoten · Start-Seed {seed} · Schritt {step}'
+  }
+};
+for (const key of Object.keys(EXTRA_I18N)) Object.assign(I18N[key], EXTRA_I18N[key]);
+
+let lang = 'en';
+const tr = key => I18N[lang][key] ?? I18N.en[key] ?? key;
+let graph, results = {}, selected = 'astar', pick = 'start', anim = null, autoStudy = null;
+let playing = false, frameRequest = 0, lastTime = 0, budget = 0;
+let visited = new Set(), discovered = new Set(), discoveredEdges = new Set(), checkedEdges = new Set();
+let currentNode = -1, lastEdge = -1, hoverNode = -1, showPath = false;
+let styleMode = 'classic', labMode = 'both';
+const canvas = $('graphCanvas'), ctx = canvas.getContext('2d');
+const format = v => Number.isFinite(v) ? v.toFixed(1) : '—';
+const formatInt = v => Number.isFinite(v) ? Math.round(v).toString() : '—';
+const formatPct = v => Number.isFinite(v) ? `${v.toFixed(1)}%` : '—';
+const formatTime = v => Number.isFinite(v) ? (v < .01 ? v.toFixed(4) : v.toFixed(3)) + ' ms' : '—';
+
+function fillTemplate(text, values) {
+  return text.replace(/\{(\w+)\}/g, (_, key) => values[key] ?? '');
+}
+
+function translate() {
+  document.documentElement.lang = lang;
+  document.querySelectorAll('[data-i18n]').forEach(element => element.textContent = tr(element.dataset.i18n));
+  $('language').value = lang;
+  syncSelectLabels();
+  updateModeUI();
+  renderAlgorithms();
+  renderBenchmark();
+  renderAutoStudy();
+  updatePick();
+  updateInfo();
+  updateTitles();
+  updateResultUI();
+}
+
+function syncSelectLabels() {
+  const vs = $('visualStyle');
+  if (vs) {
+    vs.options[0].textContent = tr('classicLabel');
+    vs.options[1].textContent = tr('cityLabel');
+    vs.value = styleMode;
+  }
+  const lm = $('labMode');
+  if (lm) {
+    lm.options[0].textContent = tr('modeManual');
+    lm.options[1].textContent = tr('modeAuto');
+    lm.options[2].textContent = tr('modeBoth');
+    lm.value = labMode;
+  }
+}
+
+function updateTitles() {
+  $('networkTitle').textContent = styleMode === 'city' ? tr('networkTitleCity') : tr('networkTitle');
+}
+
+function updateModeUI() {
+  const manualBlock = $('manualBlock'), autoBlock = $('autoBlock');
+  if (manualBlock) manualBlock.style.display = labMode === 'auto' ? 'none' : '';
+  if (autoBlock) autoBlock.style.display = labMode === 'manual' ? 'none' : '';
+}
+
+function renderAlgorithms() {
+  $('algorithms').replaceChildren();
+  for (const a of ALGORITHMS) {
+    const button = document.createElement('button');
+    button.className = 'algorithm' + (selected === a.id ? ' active' : '');
+    button.setAttribute('role', 'radio');
+    button.setAttribute('aria-checked', String(selected === a.id));
+    const radio = document.createElement('span'); radio.className = 'alg-dot';
+    const label = document.createElement('span'); label.className = 'alg-label'; label.textContent = a.name;
+    const badge = document.createElement('span'); badge.className = 'alg-badge' + (a.kind === 'custom' ? ' custom' : ''); badge.textContent = tr(a.kind);
+    button.append(radio, label, badge);
+    button.addEventListener('click', () => selectAlgorithm(a.id));
+    $('algorithms').append(button);
+  }
+}
+
+function updateInfo() { $('algorithmDescription').textContent = tr('desc')[selected] ?? I18N.en.desc[selected]; }
+function selectAlgorithm(id, autorun = false) {
+  selected = id;
+  stopAnimation(); clearVis();
+  renderAlgorithms(); renderBenchmark(); updateInfo(); updateResultUI(); draw();
+  if (autorun) run();
+}
+
+function renderBenchmark() {
+  const tbody = $('benchmarkRows'); if (!tbody) return; tbody.replaceChildren();
+  const optimum = results.dijkstra?.distance ?? Infinity;
+  for (const a of ALGORITHMS) {
+    const r = results[a.id];
+    const row = document.createElement('tr');
+    if (selected === a.id) row.className = 'selected';
+    if (r) {
+      const percent = r.found && Number.isFinite(optimum) && optimum > 0 ? (r.distance / optimum - 1) * 100 : NaN;
+      const delta = r.found ? (Math.abs(percent) < 0.00001 ? '0.0%' : '+' + percent.toFixed(1) + '%') : '—';
+      const good = r.found && Math.abs(percent) < .00001;
+      row.innerHTML = `<td>${a.name}<div class="sub">${tr(a.kind)}</div></td><td>${format(r.distance)}</td><td class="${good ? 'num-green' : r.found ? 'num-yellow' : 'num-red'}">${delta}</td><td>${r.visited}</td><td>${r.checks}</td><td>${formatTime(r.ms)}</td><td><span class="pill ${r.found ? '' : 'miss'}">${r.found ? (good ? tr('optimal') : tr('success')) : tr('stuck')}</span></td>`;
+    } else {
+      row.innerHTML = `<td>${a.name}</td><td colspan="6">—</td>`;
+    }
+    row.addEventListener('click', () => selectAlgorithm(a.id, true));
+    tbody.append(row);
+  }
+}
+
+function renderAutoStudy() {
+  const tbody = $('autoRows'), summary = $('autoSummary');
+  if (!tbody || !summary) return;
+  tbody.replaceChildren();
+  if (!autoStudy?.data) {
+    summary.textContent = tr(autoStudy?.running ? 'autoRunning' : 'autoIdle');
+    return;
+  }
+  summary.textContent = fillTemplate(tr('autoSummary'), autoStudy.meta);
+  for (const a of ALGORITHMS) {
+    const r = autoStudy.data[a.id];
+    const row = document.createElement('tr');
+    row.innerHTML = `<td>${a.name}<div class="sub">${tr(a.kind)}</div></td><td>${formatPct(r.successRate)}</td><td class="${r.avgDelta <= 0.01 ? 'num-green' : r.avgDelta <= 10 ? 'num-yellow' : 'num-red'}">${r.successes ? '+' + r.avgDelta.toFixed(1) + '%' : '—'}</td><td>${formatInt(r.avgVisited)}</td><td>${formatInt(r.avgChecks)}</td><td>${formatTime(r.avgTime)}</td>`;
+    tbody.append(row);
+  }
+}
+
+function stopAnimation() {
+  playing = false;
+  if (frameRequest) cancelAnimationFrame(frameRequest);
+  frameRequest = 0;
+}
+function clearVis() {
+  anim = null; visited.clear(); discovered.clear(); discoveredEdges.clear(); checkedEdges.clear();
+  currentNode = -1; lastEdge = -1; showPath = false; budget = 0; lastTime = 0;
+  $('timelineFill').style.width = '0%'; $('stepCounter').textContent = '0 / 0';
+}
+function clearAutoStudy() {
+  autoStudy = null;
+  renderAutoStudy();
+}
+function regen() {
+  stopAnimation(); clearVis(); clearAutoStudy();
+  const count = +$('nodeRange').value, neighbors = +$('edgeRange').value;
+  const seed = (Number($('seed').value) >>> 0);
+  $('seed').value = String(seed);
+  graph = generateGraph({count,neighbors,seed});
+  $('nodeCount').textContent = graph.nodes.length;
+  $('edgeCount').textContent = graph.edges.length;
+  $('startLabel').textContent = String(graph.start).padStart(3,'0');
+  $('goalLabel').textContent = String(graph.goal).padStart(3,'0');
+  results = benchmark(graph,graph.start,graph.goal);
+  renderBenchmark(); updateResultUI(); draw();
+}
+function recompute() {
+  stopAnimation(); clearVis();
+  results = benchmark(graph,graph.start,graph.goal);
+  $('startLabel').textContent = String(graph.start).padStart(3,'0');
+  $('goalLabel').textContent = String(graph.goal).padStart(3,'0');
+  renderBenchmark(); updateResultUI(); draw();
+}
+function randomEnds() {
+  const rng = Math.random;
+  const n = graph.nodes.length;
+  const a = Math.floor(rng()*n);
+  let best = (a+1)%n, dist = 0;
+  for (let i=0;i<60;i++) {
+    const b=Math.floor(rng()*n), d=euclidean(graph.nodes[a],graph.nodes[b]);
+    if (b!==a && d>dist) {best=b;dist=d;}
+  }
+  graph.start=a; graph.goal=best; recompute();
+}
+function updatePick() {
+  $('pickStart').classList.toggle('active',pick==='start'); $('pickGoal').classList.toggle('active',pick==='goal');
+  $('pickStatus').textContent = tr(pick === 'start' ? 'pickA' : 'pickB');
+}
+function updateResultUI() {
+  const r = anim && showPath ? anim.result : null;
+  const best = results.dijkstra?.distance ?? Infinity;
+  $('routeLength').textContent = r?.found ? format(r.distance) : '—';
+  $('relativeBest').textContent = r?.found ? (best ? '+'+Math.max(0,((r.distance/best)-1)*100).toFixed(1)+'%' : '0%') : '—';
+  $('hopCount').textContent = r?.found ? String(r.hops) : '—';
+  $('visitedCount').textContent = String(visited.size);
+  $('checkedCount').textContent = String(anim?.processedChecks || 0);
+  const ratio = graph ? 100 * visited.size / graph.nodes.length : 0;
+  $('coverageValue').textContent = ratio.toFixed(0) + '%';
+  $('coverageFill').style.width = ratio + '%';
+  $('timeValue').textContent = formatTime(results[selected]?.ms);
+  const status = $('resultStatus'); status.className = 'result-status';
+  let statusKey = 'ready', lineKey = 'readyLine', expKey = 'expReady';
+  if (anim) {
+    if (showPath) {
+      statusKey = r.found ? 'found' : 'failed'; lineKey = r.found ? 'foundLine' : 'failedLine';
+      expKey = !r.found ? 'expStuck' : r.distance <= best + 1e-7 ? 'expOptimal' : 'expNonoptimal';
+      status.classList.add(r.found ? 'success' : 'failed');
+    } else {
+      statusKey = playing ? 'running' : 'paused'; lineKey = playing ? 'runningLine' : 'pauseLine'; expKey = 'expRunning';
+    }
+  }
+  $('statusText').textContent = tr(statusKey);
+  $('runState').textContent = tr(lineKey);
+  $('liveExplanation').textContent = tr(expKey);
+  $('pause').querySelector('span').textContent = tr(!playing && anim && !showPath ? 'resume' : 'pause');
+  $('pause').disabled = !anim || showPath;
+  $('step').disabled = !!(anim && showPath);
+  $('stepCounter').textContent = anim ? `${anim.position} / ${anim.trace.length}` : '0 / 0';
+  $('timelineFill').style.width = anim && anim.trace.length ? `${100 * anim.position / anim.trace.length}%` : '0%';
+}
+function prepare() {
+  stopAnimation(); clearVis();
+  const result = solve(graph,graph.start,graph.goal,selected,{record:true});
+  anim = {result,trace:result.trace,position:0,processedChecks:0};
+}
+function run() {
+  prepare();
+  playing=true; lastTime=0; budget=0;
+  updateResultUI();
+  frameRequest=requestAnimationFrame(tick);
+}
+function advance() {
+  if (!anim || anim.position >= anim.trace.length) return;
+  const step = anim.trace[anim.position++];
+  if (step.type === 'visit') {
+    visited.add(step.node); discovered.delete(step.node); currentNode = step.node;
+  } else if (step.type === 'check') {
+    lastEdge = step.edge; checkedEdges.add(step.edge); anim.processedChecks++;
+  } else if (step.type === 'discover') {
+    discovered.add(step.node); discoveredEdges.add(step.edge);
+  }
+  if (anim.position === anim.trace.length) finish();
+}
+function finish() {
+  playing = false; showPath = true;
+  if (frameRequest) cancelAnimationFrame(frameRequest);
+  frameRequest=0;
+  draw(); updateResultUI();
+}
+function tick(now) {
+  if (!playing || !anim) return;
+  if (!lastTime) lastTime=now;
+  const dt=Math.min(100,now-lastTime); lastTime=now;
+  budget += dt*Number($('speed').value)/1000;
+  const available=Math.min(120, Math.floor(budget));
+  budget -= available;
+  for(let i=0;i<available && playing;i++) advance();
+  draw(); updateResultUI();
+  if (playing) frameRequest=requestAnimationFrame(tick);
+}
+function singleStep() {
+  if (!anim || showPath) prepare();
+  stopAnimation();
+  advance(); draw(); updateResultUI();
+}
+function togglePause() {
+  if (!anim || showPath) return;
+  if (playing) { stopAnimation(); updateResultUI(); }
+  else { playing = true; lastTime=0; frameRequest=requestAnimationFrame(tick); updateResultUI(); }
+}
+function canvasScale() {
+  const dpr=Math.max(1,Math.min(2,window.devicePixelRatio||1));
+  const rect=canvas.getBoundingClientRect();
+  const w=Math.round(rect.width*dpr),h=Math.round(rect.height*dpr);
+  if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h;}
+  ctx.setTransform(canvas.width/WIDTH,0,0,canvas.height/HEIGHT,0,0);
+}
+function segment(a,b,color,width=1,dash=[]) {
+  ctx.save();ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);
+  ctx.strokeStyle=color;ctx.lineWidth=width;ctx.setLineDash(dash);ctx.stroke();ctx.restore();
+}
+function circle(node,r,color,stroke=null) {
+  ctx.beginPath();ctx.arc(node.x,node.y,r,0,Math.PI*2);ctx.fillStyle=color;ctx.fill();
+  if(stroke){ctx.lineWidth=1.5;ctx.strokeStyle=stroke;ctx.stroke();}
+}
+function square(x,y,w,h,fill,stroke=null,r=0){
+  ctx.beginPath();
+  if (ctx.roundRect && r>0) ctx.roundRect(x,y,w,h,r); else ctx.rect(x,y,w,h);
+  ctx.fillStyle=fill; ctx.fill();
+  if (stroke) { ctx.strokeStyle=stroke; ctx.lineWidth=1.1; ctx.stroke(); }
+}
+function drawHouse(node, state='base') {
+  const palette = {
+    base:['#f9f7f1','#dbcfb9'],
+    frontier:['#ffe9c5','#df9f4f'],
+    visited:['#dffbff','#67bccf'],
+    route:['#e9fff1','#57b47f'],
+    start:['#dff5ff','#70d9fc'],
+    goal:['#fff0da','#ffcd83']
+  }[state];
+  const size = state === 'route' ? 12 : 10;
+  const x = node.x - size/2, y = node.y - size/2;
+  ctx.save();
+  square(x, y, size, size*0.72, palette[0], palette[1], 1.4);
+  ctx.beginPath();
+  ctx.moveTo(node.x - size*0.62, y + size*0.1);
+  ctx.lineTo(node.x, y - size*0.45);
+  ctx.lineTo(node.x + size*0.62, y + size*0.1);
+  ctx.closePath();
+  ctx.fillStyle = palette[1];
+  ctx.fill();
+  ctx.beginPath();
+  ctx.fillStyle = '#856f4e';
+  ctx.fillRect(node.x - 1.2, y + size*0.18, 2.4, 3.4);
+  ctx.restore();
+}
+function drawCityBackdrop(nodes) {
+  ctx.fillStyle = '#d8c9a8';
+  ctx.fillRect(0,0,WIDTH,HEIGHT);
+  for (const node of nodes) {
+    const w = 22 + (node.id % 4) * 5;
+    const h = 16 + (node.id % 3) * 6;
+    const dx = ((node.id * 17) % 18) - 9;
+    const dy = ((node.id * 13) % 16) - 8;
+    const x = Math.max(6, Math.min(WIDTH - w - 6, node.x + dx - w/2));
+    const y = Math.max(6, Math.min(HEIGHT - h - 6, node.y + dy - h/2));
+    square(x, y, w, h, '#efe5d0', '#decfac', 2);
+  }
+}
+function drawClassic(nodes, edges, start, goal) {
+  if(selected==='course') segment(nodes[start],nodes[goal],'#eab46755',1.6,[9,8]);
+  for(const e of edges) segment(nodes[e.u],nodes[e.v],'#35506a77',1.05);
+  for(const id of checkedEdges){const e=edges[id];segment(nodes[e.u],nodes[e.v],'#9f79475a',1.5);}
+  for(const id of discoveredEdges){const e=edges[id];segment(nodes[e.u],nodes[e.v],'#4ebce388',2.2);}
+  if(lastEdge>=0 && !showPath){const e=edges[lastEdge];segment(nodes[e.u],nodes[e.v],'#ffc16c',3);}
+  if(showPath && anim?.result.found) {
+    ctx.save();ctx.shadowColor='#53f2a8';ctx.shadowBlur=14;
+    for(const id of anim.result.pathEdges){const e=edges[id];segment(nodes[e.u],nodes[e.v],'#79f9ae',4.7);}
+    ctx.restore();
+  }
+  for(const node of nodes){
+    const isVisited=visited.has(node.id), isFrontier=discovered.has(node.id);
+    const c=isVisited?'#55d8dc':isFrontier?'#ffba72':'#54718b';
+    circle(node,isVisited?3.9:isFrontier?3.8:3.0,c);
+  }
+  if(showPath && anim?.result.found){
+    for(const id of anim.result.path) if(id!==start && id!==goal) circle(nodes[id],5.1,'#87ffd0');
+  }
+  if(currentNode!==-1 && !showPath) { ctx.save();ctx.shadowColor='#7bcfff';ctx.shadowBlur=18;circle(nodes[currentNode],8,'#c1f1ff','#77d7ff');ctx.restore(); }
+  if(hoverNode!==-1 && hoverNode!==start && hoverNode!==goal){ ctx.beginPath();ctx.arc(nodes[hoverNode].x,nodes[hoverNode].y,12,0,Math.PI*2);ctx.strokeStyle='#c6e7fa66';ctx.lineWidth=1.5;ctx.stroke(); }
+  for(const [id,label,color] of [[start,'A','#70d9fc'],[goal,'B','#ffcd83']]) {
+    const n=nodes[id];
+    ctx.save();ctx.shadowColor=color;ctx.shadowBlur=20;circle(n,11,'#10283b',color);circle(n,6,color);ctx.restore();
+    ctx.fillStyle='#f6fbff';ctx.font='700 13px system-ui';ctx.textAlign='center';ctx.fillText(label,n.x,n.y-19);
+  }
+}
+function drawCity(nodes, edges, start, goal) {
+  drawCityBackdrop(nodes);
+  if(selected==='course') segment(nodes[start],nodes[goal],'#7f6d4ca8',2,[8,7]);
+  for(const e of edges) segment(nodes[e.u],nodes[e.v],'#b08956a6',6.5);
+  for(const id of checkedEdges){const e=edges[id];segment(nodes[e.u],nodes[e.v],'#9d7745a0',7.5);}
+  for(const id of discoveredEdges){const e=edges[id];segment(nodes[e.u],nodes[e.v],'#d3b071b8',8.5);}
+  if(lastEdge>=0 && !showPath){const e=edges[lastEdge];segment(nodes[e.u],nodes[e.v],'#f3d08c',9.5);}
+  if(showPath && anim?.result.found) {
+    ctx.save();ctx.shadowColor='#65c58f';ctx.shadowBlur=10;
+    for(const id of anim.result.pathEdges){const e=edges[id];segment(nodes[e.u],nodes[e.v],'#5cb980',10.5);}
+    ctx.restore();
+  }
+  for(const node of nodes) {
+    let state='base';
+    if (visited.has(node.id)) state='visited';
+    else if (discovered.has(node.id)) state='frontier';
+    drawHouse(node, state);
+  }
+  if(showPath && anim?.result.found){
+    for(const id of anim.result.path) if(id!==start && id!==goal) drawHouse(nodes[id], 'route');
+  }
+  if(currentNode!==-1 && !showPath) {
+    const n = nodes[currentNode];
+    ctx.save(); ctx.strokeStyle='#54d3e0'; ctx.lineWidth=2; ctx.strokeRect(n.x-11, n.y-11, 22, 22); ctx.restore();
+  }
+  if(hoverNode!==-1 && hoverNode!==start && hoverNode!==goal){ const n=nodes[hoverNode]; ctx.save(); ctx.strokeStyle='#8d7e59'; ctx.setLineDash([4,4]); ctx.lineWidth=1.5; ctx.strokeRect(n.x-12,n.y-12,24,24); ctx.restore(); }
+  drawHouse(nodes[start], 'start');
+  drawHouse(nodes[goal], 'goal');
+  for(const [id,label,color] of [[start,'A','#1f6f89'],[goal,'B','#9b6a1b']]) {
+    const n=nodes[id];
+    ctx.fillStyle=color; ctx.font='700 13px system-ui'; ctx.textAlign='center'; ctx.fillText(label,n.x,n.y-18);
+  }
+}
+function draw() {
+  if (!graph) return;
+  canvasScale();ctx.clearRect(0,0,WIDTH,HEIGHT);
+  const {nodes,edges,start,goal} = graph;
+  if (styleMode === 'city') drawCity(nodes, edges, start, goal);
+  else drawClassic(nodes, edges, start, goal);
+}
+function pointFromEvent(event) {
+  const r=canvas.getBoundingClientRect();
+  return {x:(event.clientX-r.left)/r.width*WIDTH,y:(event.clientY-r.top)/r.height*HEIGHT};
+}
+function nearest(pt) {
+  let min=Infinity,id=-1;
+  for(const node of graph.nodes) { const d=euclidean(pt,node);if(d<min){min=d;id=node.id;} }
+  return min<=(styleMode==='city'?22:19)?id:-1;
+}
+
+async function runAutoStudy() {
+  const button = $('runAuto');
+  button.disabled = true;
+  autoStudy = { running: true };
+  renderAutoStudy();
+  const maps = Math.max(5, Math.min(250, Number($('autoMaps').value) || 40));
+  const step = Math.max(1, Number($('autoSeedStep').value) || 97);
+  const count = +$('nodeRange').value, neighbors = +$('edgeRange').value;
+  const seedBase = (Number($('seed').value) >>> 0);
+  const acc = Object.fromEntries(ALGORITHMS.map(a => [a.id, {maps:0, successes:0, deltaSum:0, deltaCount:0, visitedSum:0, checksSum:0, timeSum:0}]));
+  for (let i = 0; i < maps; i++) {
+    const g = generateGraph({ count, neighbors, seed: (seedBase + i * step) >>> 0 });
+    const res = benchmark(g, g.start, g.goal, 9);
+    const optimum = res.dijkstra.distance;
+    for (const a of ALGORITHMS) {
+      const r = res[a.id], bucket = acc[a.id];
+      bucket.maps++; bucket.visitedSum += r.visited; bucket.checksSum += r.checks; bucket.timeSum += r.ms;
+      if (r.found) { bucket.successes++; bucket.deltaSum += Math.max(0, (r.distance / optimum - 1) * 100); bucket.deltaCount++; }
+    }
+    if (i % 5 === 4) {
+      $('autoSummary').textContent = `${tr('autoRunning')} ${i + 1} / ${maps}`;
+      await new Promise(resolve => setTimeout(resolve, 0));
+    }
+  }
+  const data = {};
+  for (const a of ALGORITHMS) {
+    const r = acc[a.id];
+    data[a.id] = {
+      successes: r.successes,
+      successRate: r.maps ? r.successes / r.maps * 100 : 0,
+      avgDelta: r.deltaCount ? r.deltaSum / r.deltaCount : NaN,
+      avgVisited: r.maps ? r.visitedSum / r.maps : NaN,
+      avgChecks: r.maps ? r.checksSum / r.maps : NaN,
+      avgTime: r.maps ? r.timeSum / r.maps : NaN
+    };
+  }
+  autoStudy = { running: false, data, meta: { maps, nodes: count, neighbors, seed: seedBase, step } };
+  renderAutoStudy();
+  button.disabled = false;
+}
+
+canvas.addEventListener('mousemove',e=>{const id=nearest(pointFromEvent(e));if(id!==hoverNode){hoverNode=id;draw();}});
+canvas.addEventListener('mouseleave',()=>{hoverNode=-1;draw();});
+canvas.addEventListener('click',e=>{
+  const id=nearest(pointFromEvent(e));if(id<0)return;
+  if(pick==='start') { if(id===graph.goal)return;graph.start=id;pick='goal'; }
+  else {if(id===graph.start)return;graph.goal=id;pick='start';}
+  updatePick();recompute();
+});
+$('generate').addEventListener('click',()=>{$('seed').value=String(Math.floor(Math.random()*4294967295));regen();});
+$('nodeRange').addEventListener('input',e=>$('nodeValue').textContent=e.target.value);
+$('edgeRange').addEventListener('input',e=>$('edgeValue').textContent=e.target.value);
+for (const id of ['nodeRange','edgeRange','seed']) $(id).addEventListener('change',regen);
+$('visualStyle').addEventListener('change', e => { styleMode = e.target.value; updateTitles(); draw(); });
+$('labMode').addEventListener('change', e => { labMode = e.target.value; updateModeUI(); });
+$('pickStart').addEventListener('click',()=>{pick='start';updatePick();});
+$('pickGoal').addEventListener('click',()=>{pick='goal';updatePick();});
+$('randomEnds').addEventListener('click',randomEnds);
+$('run').addEventListener('click',run);
+$('pause').addEventListener('click',togglePause);
+$('step').addEventListener('click',singleStep);
+$('benchmark').addEventListener('click',recompute);
+$('runAuto').addEventListener('click',runAutoStudy);
+$('speed').addEventListener('input',e=>$('speedValue').textContent=e.target.value);
+$('language').addEventListener('change',e=>{lang=e.target.value;translate();});
+window.addEventListener('resize',draw);
+window.addEventListener('keydown',e=>{
+  if(/INPUT|SELECT|TEXTAREA/.test(document.activeElement?.tagName)) return;
+  if(e.key===' '){e.preventDefault(); if(anim && !showPath) togglePause();else run();}
+  if(e.key==='ArrowRight'){e.preventDefault();singleStep();}
+});
+renderAlgorithms();regen();translate();
+</script>
+</body>
+</html>
